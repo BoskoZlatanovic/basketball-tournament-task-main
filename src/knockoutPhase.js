@@ -1,4 +1,5 @@
 function rankTeams(finalStandings) {
+    // Arrays to hold teams based on their group position -
     const groupWinners = [];
     const groupRunnerUps = [];
     const groupThirds = [];
@@ -11,15 +12,16 @@ function rankTeams(finalStandings) {
 
     }
 
+    // Sort teams, first by points then by point difference then by points scored
     function compareTeams(a, b) {
         if (a.points !== b.points)
             return b.points - a.points;
 
-        const aGoalDiff = a.pointsScored - a.pointsConceded;
-        const bGoalDiff = b.pointsScored - b.pointsConceded;
+        const aPointDiff = a.pointsScored - a.pointsConceded;
+        const bPointDiff = b.pointsScored - b.pointsConceded;
 
-        if (aGoalDiff !== bGoalDiff)
-            return bGoalDiff - aGoalDiff;
+        if (aPointDiff !== bPointDiff)
+            return bPointDiff - aPointDiff;
 
         return b.pointsScored - a.pointsScored;
     }

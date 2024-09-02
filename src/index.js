@@ -4,7 +4,7 @@ const { rankTeams, createPots, drawQuarterFinals, drawSemiFinals, simulateKnocko
 
 // Ucitavanje podataka
 const groups = JSON.parse(fs.readFileSync('../basketball-tournament-task-main/json/groups.json', 'utf8'));
-const exhibitions = JSON.parse(fs.readFileSync('../basketball-tournament-task-main/Sjson/exibitions.json', 'utf8'));
+const exhibitions = JSON.parse(fs.readFileSync('../basketball-tournament-task-main/json/exibitions.json', 'utf8'));
 
 // Kreiranje mape za podatke o timovima
 const teams = new Map();

@@ -5,7 +5,16 @@ function calculateInitialForm(teams, exhibitions) {
             const [teamScore, opponentScore] = match.Result.split('-').map(Number);
             const scoreDifference = teamScore - opponentScore;
             const opponentRanking = teams.get(match.Opponent)?.fibaRanking || 50;
-            formPoints += scoreDifference * (50 / opponentRanking);
+            const teamRanking = teams.get(isoCode)?.fibaRanking || 50;
+
+            // Calculate an expected score based on rankings
+            const expectedScore = 1 / (1 + Math.pow(10, (opponentRanking - teamRanking) / 400));
+
+            // Calculate actual score (1 for win, 0.5 for draw, 0 for loss)
+            const actualScore = scoreDifference > 0 ? 1 : (scoreDifference === 0 ? 0.5 : 0);
+
+            // Calculate form points based on difference between actual and expected score
+            formPoints += (actualScore - expectedScore) * 100;
         });
         const team = teams.get(isoCode);
         if (team) {
@@ -15,7 +24,7 @@ function calculateInitialForm(teams, exhibitions) {
 }
 
 function simulateMatch(team1, team2) {
-
+    // Calculate win probability for team1 based on ranking and form differences
     const rankDiff = team2.fibaRanking - team1.fibaRanking;
     const formDiff = team1.form - team2.form;
     const baseProb = 0.5 + rankDiff * 0.01 + formDiff * 0.005;
@@ -24,8 +33,9 @@ function simulateMatch(team1, team2) {
     let team1Score, team2Score;
     const team1Wins = Math.random() < team1Prob;
 
+    // Generate random scores ensuring the winner has a higher score
     do {
-        team1Score = Math.floor(Math.random() * 30) + 70;
+        team1Score = Math.floor(Math.random() * 30) + 70; // Random score between 70 and 99
         team2Score = Math.floor(Math.random() * 30) + 70;
     } while ((team1Wins && team1Score <= team2Score) || (!team1Wins && team1Score >= team2Score));
 
@@ -50,7 +60,7 @@ function simulateMatch(team1, team2) {
 
 function updateTeamStats(team, scoreFor, scoreAgainst) {
     const isWinner = scoreFor > scoreAgainst;
-    team.points += isWinner ? 2 : 1;
+    team.points += isWinner ? 2 : 1; // 2 points for a win, 1 for a loss
     team.wins += isWinner ? 1 : 0;
     team.losses += isWinner ? 0 : 1;
     team.pointsScored += scoreFor;
@@ -58,22 +68,28 @@ function updateTeamStats(team, scoreFor, scoreAgainst) {
 }
 
 function simulateGroupPhase(groups, teams) {
+    // Iterate through 3 rounds of matches
     for (let round = 1; round <= 3; round++) {
         console.log(`Grupna faza - ${round}. kolo:`);
+        // For each group in the tournament
         for (const group in groups) {
             console.log(`    Grupa ${group}:`);
             const teamsInGroup = groups[group];
 
+            // Simulate matches based on the round
             switch(round) {
                 case 1:
+                    // First round: 1st vs 2nd, 3rd vs 4th
                     simulateMatch(teams.get(teamsInGroup[0].ISOCode), teams.get(teamsInGroup[1].ISOCode));
                     simulateMatch(teams.get(teamsInGroup[2].ISOCode), teams.get(teamsInGroup[3].ISOCode));
                     break;
                 case 2:
+                    // Second round: 1st vs 3rd, 2nd vs 4th
                     simulateMatch(teams.get(teamsInGroup[0].ISOCode), teams.get(teamsInGroup[2].ISOCode));
                     simulateMatch(teams.get(teamsInGroup[1].ISOCode), teams.get(teamsInGroup[3].ISOCode));
                     break;
                 case 3:
+                    // Third round: 1st vs 4th, 2nd vs 3rd
                     simulateMatch(teams.get(teamsInGroup[0].ISOCode), teams.get(teamsInGroup[3].ISOCode));
                     simulateMatch(teams.get(teamsInGroup[1].ISOCode), teams.get(teamsInGroup[2].ISOCode));
                     break;
